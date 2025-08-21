@@ -1,0 +1,3 @@
+SECRET_KEY = 'asbdhasbdhabdhabdhbakjdandamsdnanwdnasd'
+MAPBOX_API_KEY = "pk.eyJ1IjoibmluYWRiaXMiLCJhIjoiY21lYjMzMDRmMDltcjJqcG52aHVkNjRodCJ9.uxOjwSM1r9fAcBSPHbRnKg"
+

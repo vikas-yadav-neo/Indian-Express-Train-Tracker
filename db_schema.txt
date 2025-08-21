@@ -1,0 +1,115 @@
+Table: delay_train
+------------------
+train_number (character varying)
+name (character varying)
+from_station_code (character varying)
+to_station_code (character varying)
+distance_km (double precision)
+duration_h (integer)
+duration_m (integer)
+delay_minutes (bigint)
+last_crossed (text)
+next_upcoming (text)
+
+Table: live_status
+------------------
+train_number (text)
+last_crossed (text)
+next_upcoming (text)
+delay_minutes (bigint)
+
+Table: live_status_13_08_2025
+-----------------------------
+train_number (text)
+last_crossed (text)
+next_upcoming (text)
+delay_minutes (bigint)
+
+Table: schedules
+----------------
+id (bigint)
+train_number (character varying)
+train_name (character varying)
+station_code (character varying)
+station_name (character varying)
+day (integer)
+arrival_time (time without time zone)
+departure_time (time without time zone)
+
+Table: stations
+---------------
+station_code (character varying)
+name (character varying)
+state (character varying)
+zone (character varying)
+address (text)
+latitude (double precision)
+longitude (double precision)
+
+Table: trains
+-------------
+train_number (character varying)
+name (character varying)
+from_station_code (character varying)
+to_station_code (character varying)
+distance_km (double precision)
+duration_h (integer)
+duration_m (integer)
+type (character varying)
+first_ac (integer)
+second_ac (integer)
+third_ac (integer)
+first_class (integer)
+sleeper (integer)
+chair_car (integer)
+zone (character varying)
+departure_time (time without time zone)
+arrival_time (time without time zone)
+
+Table: v_routes
+---------------
+train_number (character varying)
+train_name (character varying)
+type (character varying)
+train_zone (character varying)
+from_station_code (character varying)
+from_station_name (character varying)
+from_lat (double precision)
+from_lon (double precision)
+to_station_code (character varying)
+to_station_name (character varying)
+to_lat (double precision)
+to_lon (double precision)
+distance_km (double precision)
+duration_minutes (integer)
+
+Table: v_schedule_enriched
+--------------------------
+id (bigint)
+train_number (character varying)
+train_name (character varying)
+train_type (character varying)
+train_zone (character varying)
+station_code (character varying)
+station_name (character varying)
+station_state (character varying)
+station_zone (character varying)
+latitude (double precision)
+longitude (double precision)
+arrival_time (time without time zone)
+departure_time (time without time zone)
+journey_day (integer)
+arr_hour (numeric)
+dep_hour (numeric)
+
+Table: v_station_stops
+----------------------
+station_code (character varying)
+name (character varying)
+state (character varying)
+zone (character varying)
+latitude (double precision)
+longitude (double precision)
+stop_count (bigint)
+unique_trains (bigint)
+

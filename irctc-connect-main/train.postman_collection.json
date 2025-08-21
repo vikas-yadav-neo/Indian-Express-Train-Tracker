@@ -1,0 +1,205 @@
+{
+	"info": {
+		"_postman_id": "53f24bcd-6c04-4a63-aec4-26d0cf14dc2d",
+		"name": "train",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16786369",
+		"_collection_link": "https://trip-planner-7520.postman.co/workspace/My-Workspace~e75a8d26-0c96-41ca-83c3-c5fc1781b933/collection/16786369-53f24bcd-6c04-4a63-aec4-26d0cf14dc2d?action=share&source=collection_link&creator=16786369"
+	},
+	"item": [
+		{
+			"name": "get train info",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://127.0.0.1:3001/api/train/trainInfo/?trainNumber=22177",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"train",
+						"trainInfo",
+						""
+					],
+					"query": [
+						{
+							"key": "trainNumber",
+							"value": "22177"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "check PNR Status",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://127.0.0.1:3001/api/train/checkPNRStatus/?pnr=8135417862",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"train",
+						"checkPNRStatus",
+						""
+					],
+					"query": [
+						{
+							"key": "pnr",
+							"value": "8135417862"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "live At Station",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://127.0.0.1:3001/api/train/liveAtStation?stnCode=NDLS",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"train",
+						"liveAtStation"
+					],
+					"query": [
+						{
+							"key": "stnCode",
+							"value": "NDLS"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "track train",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"trainNumber\": \"22177\",\r\n    \"date\": \"13-08-2025\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:3001/api/train/trackTrain",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"train",
+						"trackTrain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search Train Between Stations",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"fromStnCode\": \"NDLS\",\r\n    \"toStnCode\": \"BCT\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:3001/api/train/searchTrainBetweenStations",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"train",
+						"searchTrainBetweenStations"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

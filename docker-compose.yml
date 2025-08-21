@@ -1,0 +1,165 @@
+services:
+  spark-jupyter:
+    image: easewithdata/pyspark-jupyter-lab
+    user: root
+    container_name: spark-jupyter
+    ports:
+      - 8888:8888
+      - 4040:4040
+    environment:
+      JUPYTER_PORT: 8888
+      SPARK_UI_PORT: 4040
+      GRANT_SUDO: yes
+    volumes:
+    - ./notebooks:/home/jupyter/work/notebooks        # host notebooks
+    - ./data:/home/jupyter/work/data                         # host data folder
+    - ./utils:/home/jupyter/work/utils
+    networks:
+      - e_railway_live_status_network
+    depends_on:
+      - namenode
+      - kafka
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
+      - ./zookeeper_data:/var/lib/zookeeper/data
+      - ./zookeeper_log:/var/lib/zookeeper/log
+    networks:
+      - e_railway_live_status_network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.4
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+      - streaming_data:/data:rw
+      - ./kafka_data:/var/lib/kafka/data
+      - ./data:/data:rw
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://127.0.0.1:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CREATE_TOPICS: "raw:1:1"
+    networks:
+      - e_railway_live_status_network
+
+  namenode:
+    image: apache/hadoop:3.4.1
+    container_name: namenode
+    hostname: namenode
+    command: ["hdfs", "namenode"]
+    ports:
+      - 9870:9870
+      - 9000:9000
+    environment:
+      ENSURE_NAMENODE_DIR: "/hadoop/dfs/name"
+      HDFS_NAMENODE_NAME_DIR: "/hadoop/dfs/name"
+      HADOOP_OPTS: "-Dfs.defaultFS=hdfs://namenode:9000"
+    volumes:
+      - hadoop_namenode:/hadoop/dfs/name
+      - ./hadoop-config/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+      - ./hadoop-config/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+      - ./hadoop/dfs/name:/hadoop/dfs/name
+    networks:
+      - e_railway_live_status_network
+
+  datanode:
+    image: apache/hadoop:3.4.1
+    container_name: datanode
+    hostname: datanode
+    command: ["hdfs", "datanode"]
+    ports:
+      - 9864:9864
+    environment:
+      HDFS_DATANODE_DATA_DIR: "/hadoop/dfs/data"
+      HADOOP_OPTS: "-Dfs.defaultFS=hdfs://namenode:9000"
+    volumes:
+      - hadoop_datanode:/hadoop/dfs/data
+      - ./hadoop-config/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+      - ./hadoop-config/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
+      - ./hadoop/dfs/data:/hadoop/dfs/data
+    depends_on:
+      - namenode
+    networks:
+      - e_railway_live_status_network
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: iaCkmHPhuyhFLEBDGdwxQGGqlHvdgWJA
+      POSTGRES_DB: railway
+    volumes:
+      - ./db_backups/backup.sql:/docker-entrypoint-initdb.d/backup.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - e_railway_live_status_network
+
+  superset:
+    image: apache/superset:3.0.0
+    container_name: indian-express-tracker_superset
+    environment:
+      SUPERSET_DATABASE_URI: postgresql://postgres:iaCkmHPhuyhFLEBDGdwxQGGqlHvdgWJA@postgres:5432/railway
+      SUPERSET_CONFIG_PATH: /etc/superset/superset_config.py
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8088:8088"
+    volumes:
+      - superset_home:/app/superset_home
+      - ./config:/etc/superset
+    command: [ "/bin/sh", "-c", "sleep 10 && superset db upgrade && superset init && superset run -h 0.0.0.0 -p 8088 --with-threads --reload --debugger" ]
+
+    networks:
+      - e_railway_live_status_network
+
+
+  irctc-connect-main:
+    build:
+      context: ./irctc-connect-main
+      dockerfile: Dockerfile
+    container_name: irctc-connect-main
+    ports:
+      - 3000:3000
+    volumes:
+      - irctc_data:/usr/src/app/data
+      - ./irctc-connect-main/data:/usr/src/app/data
+    networks:
+      - e_railway_live_status_network
+    depends_on:
+      - kafka
+      - namenode
+
+volumes:
+  streaming_data:
+  spark_data:
+  kafka_data:
+  zookeeper_data:
+  zookeeper_log:
+  hadoop_namenode:
+  hadoop_datanode:
+  irctc_data:
+  superset_home:
+
+networks:
+  e_railway_live_status_network:
+    driver: bridge

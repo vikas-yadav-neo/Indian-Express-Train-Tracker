@@ -1,0 +1,19 @@
+{
+  "name": "irctc-connect",
+  "version": "1.2.6",
+  "license": "ISC",
+  "author": "Rajiv81205",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "irctc-connect": "^1.2.6",
+    "morgan": "^1.10.1",
+    "nodemon": "^3.1.0"
+  }
+}

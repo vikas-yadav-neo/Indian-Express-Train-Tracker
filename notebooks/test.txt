@@ -1,0 +1,575 @@
+def get_train_info(train_number: str):
+    """Fetch train info and route."""
+    url = f"{BASE_URL}/trainInfo"
+    params = {"trainNumber": train_number}
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        print("\n===== TRAIN INFO =====")
+        print(f"Train Number: {train_number}")
+        if data.get("success"):
+            train_info = data["data"].get("trainInfo", {})
+            route = data["data"].get("route", [])
+            print(f"Name        : {train_info.get('name', 'N/A')}")
+            print(f"Type        : {train_info.get('type', 'N/A')}")
+            print("\n--- ROUTE ---")
+            for stop in route:
+                print(f"  {stop}")
+        else:
+            print("Error:", data.get("error"))
+        print("\n--- RAW RESPONSE ---")
+        print(json.dumps(data, indent=4))
+        return data
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching train info: {e}")
+        return None
+
+
+
+
+def track_train(train_number: str, date_str: str):
+    url = f"{BASE_URL}/trackTrain"
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "trainNumber": train_number,
+        "date": date_str
+    }
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        print("\n===== LIVE TRAIN STATUS =====")
+        print(f"Train Number : {train_number}")
+        print(f"Date         : {date_str}")
+        print(f"Last Updated : {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}")
+        print("\n--- RAW RESPONSE ---")
+        print(json.dumps(data, indent=4))
+        if isinstance(data, dict):
+            if "current_station" in data:
+                print("\nCurrent Station:", data["current_station"])
+            if "status" in data:
+                print("Status:", data["status"])
+            if "upcoming_stations" in data:
+                print("\nUpcoming Stations:")
+                for stn in data["upcoming_stations"]:
+                    print(f"  - {stn}")
+        return data
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching train status: {e}")
+        return None
+
+
+
+
+def check_pnr_status(pnr: str):
+    """Check PNR status."""
+    url = f"{BASE_URL}/checkPNRStatus"
+    params = {"pnr": pnr}
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        print("\n===== PNR STATUS =====")
+        print(f"PNR Number  : {pnr}")
+        if data.get("success"):
+            print("Train Name  :", data["data"]["train"]["name"])
+            print("From        :", data["data"]["journey"]["from"]["name"])
+            print("To          :", data["data"]["journey"]["to"]["name"])
+            print("Status      :", data["data"]["status"])
+        else:
+            print("Error:", data.get("error"))
+        print("\n--- RAW RESPONSE ---")
+        print(json.dumps(data, indent=4))
+        return data
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching PNR status: {e}")
+        return None
+
+
+
+
+def live_at_station(stn_code: str):
+    """Get live upcoming trains at a station."""
+    url = f"{BASE_URL}/liveAtStation"
+    params = {"stnCode": stn_code}
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        print("\n===== LIVE AT STATION =====")
+        print(f"Station Code: {stn_code}")
+        if data.get("success"):
+            trains = data.get("data", [])
+            print(f"Upcoming Trains: {len(trains)}")
+            for t in trains:
+                print(f"  Train: {t}")
+        else:
+            print("Error:", data.get("error"))
+        print("\n--- RAW RESPONSE ---")
+        print(json.dumps(data, indent=4))
+        return data
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching live station data: {e}")
+        return None
+
+
+
+
+def track_train(train_number: str, date_str: str):
+    """Track live train status."""
+    url = f"{BASE_URL}/trackTrain"
+    headers = {"Content-Type": "application/json"}
+    payload = {"trainNumber": train_number, "date": date_str}
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        # print("\n===== LIVE TRAIN STATUS =====")
+        # print(f"Train Number : {train_number}")
+        # print(f"Date         : {date_str}")
+        # print(f"Last Updated : {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}")
+
+        # if isinstance(data, dict) and data.get("success"):
+        #     print("Status:", data.get("data", {}).get("status", "N/A"))
+        # elif isinstance(data, dict):
+        #     print("Error:", data.get("error"))
+
+        # print("\n--- RAW RESPONSE ---")
+        # print(json.dumps(data, indent=4))
+        return data
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching train status: {e}")
+        return None
+
+
+
+
+
+def search_train_between_stations(from_stn_code: str, to_stn_code: str):
+    """Search trains between two stations."""
+    url = f"{BASE_URL}/searchTrainBetweenStations"
+    headers = {"Content-Type": "application/json"}
+    payload = {"fromStnCode": from_stn_code, "toStnCode": to_stn_code}
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        print("\n===== SEARCH BETWEEN STATIONS =====")
+        print(f"From: {from_stn_code}  To: {to_stn_code}")
+        if data.get("success"):
+            trains = data.get("data", [])
+            print(f"Found {len(trains)} trains")
+        else:
+            print("Error:", data.get("error"))
+        print("\n--- RAW RESPONSE ---")
+        print(json.dumps(data, indent=4))
+        return data
+    except requests.exceptions.RequestException as e:
+        print(f"Error searching trains: {e}")
+        return None
+
+
+
+from sqlalchemy import (
+    create_engine, MetaData, Table, Column, Integer, String, DateTime, Float,
+    ForeignKey, Index
+)
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.exc import SQLAlchemyError
+
+
+def create_table_dynamic(db_url: str, table_name: str, columns: list, indexes: list = None):
+    """
+    Dynamically creates a table with optional indexes and foreign keys.
+    Reflects existing tables from DB first, so foreign keys can reference them.
+
+    Args:
+        db_url (str): Database connection string.
+        table_name (str): Name of the table to create.
+        columns (list): List of dicts with column metadata.
+                        Supported keys: name, type, length, primary_key, nullable,
+                                        autoincrement, unique, default, foreign_key.
+        indexes (list): List of dicts for indexes.
+    """
+    engine = create_engine(db_url)
+    metadata = MetaData()
+
+    # Reflect all existing tables from DB into metadata
+    metadata.reflect(bind=engine)
+    # Now metadata.tables contains all existing tables known to DB
+
+    type_map = {
+        "integer": Integer,
+        "string": lambda length=255: String(length),
+        "datetime": DateTime,
+        "float": Float,
+        "array": lambda: ARRAY(Integer)  # Only integer arrays supported here
+    }
+
+    column_objs = []
+    for col in columns:
+        col_type_key = col["type"].lower()
+        if col_type_key not in type_map:
+            raise ValueError(f"Unsupported column type: {col['type']}")
+
+        if col_type_key == "string":
+            col_type = type_map[col_type_key](col.get("length", 255))
+        elif col_type_key == "array":
+            col_type = type_map[col_type_key]()  # no length param for ARRAY
+        else:
+            col_type = type_map[col_type_key]
+
+        fk = ForeignKey(col["foreign_key"]) if "foreign_key" in col else None
+
+        args = [col["name"], col_type]
+        if fk:
+            args.append(fk)
+
+        column_objs.append(
+            Column(
+                *args,
+                primary_key=col.get("primary_key", False),
+                nullable=col.get("nullable", True),
+                autoincrement=col.get("autoincrement", False),
+                unique=col.get("unique", False),
+                default=col.get("default", None),
+            )
+        )
+
+    # Create new table in the same metadata (which has all reflected tables)
+    table = Table(table_name, metadata, *column_objs)
+
+    if indexes:
+        for idx in indexes:
+            Index(idx["name"], *[table.c[col] for col in idx["columns"]])
+
+    try:
+        metadata.create_all(engine)
+        print(f"✅ Table '{table_name}' created successfully.")
+    except SQLAlchemyError as e:
+        print(f"❌ Error creating table: {e}")
+
+
+# Example usage
+if __name__ == "__main__":
+    DB_URL = "postgresql://postgres:iaCkmHPhuyhFLEBDGdwxQGGqlHvdgWJA@yamanote.proxy.rlwy.net:29855/railway"
+
+    columns_metadata = [
+        {"name": "train_no", "type": "String", "length": 20, "nullable": True,  "primary_key": True, "nullable": False, },
+        {"name": "train_name", "type": "String", "length": 100, "nullable": True},
+        {"name": "source_stn_code", "type": "String", "length": 10, "nullable": True,
+         "foreign_key": "stations.station_code"},
+        {"name": "dstn_stn_code", "type": "String", "length": 10, "nullable": True,
+         "foreign_key": "stations.station_code"},
+        {"name": "from_time", "type": "String", "length": 10, "nullable": True},
+        {"name": "to_time", "type": "String", "length": 10, "nullable": True},
+        {"name": "travel_time", "type": "String", "length": 20, "nullable": True},
+        {"name": "running_days", "type": "array", "nullable": True},
+        {"name": "distance", "type": "String", "length": 20, "nullable": True},
+        {"name": "halts", "type": "Integer", "nullable": True},
+    ]
+
+    indexes_metadata = [
+        {"name": "idx_train_no", "columns": ["train_no"]},
+        {"name": "idx_source_stn_code", "columns": ["source_stn_code"]},
+        {"name": "idx_dstn_stn_code", "columns": ["dstn_stn_code"]},
+    ]
+
+    create_table_dynamic(DB_URL, "trains", columns_metadata, indexes_metadata)
+
+
+
+
+ddl_commands = """
+    CREATE TABLE IF NOT EXISTS stations (
+    station_code VARCHAR(10) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    state VARCHAR(100),
+    zone VARCHAR(10),
+    address TEXT,
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
+    CONSTRAINT station_code_not_empty CHECK (station_code <> ''),
+    CONSTRAINT latitude_range CHECK (latitude IS NULL OR (latitude >= -90 AND latitude <= 90)),
+    CONSTRAINT longitude_range CHECK (longitude IS NULL OR (longitude >= -180 AND longitude <= 180))
+);
+
+CREATE TABLE IF NOT EXISTS trains (
+    train_number VARCHAR(10) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    from_station_code VARCHAR(10) NOT NULL REFERENCES stations(station_code) ON DELETE CASCADE,
+    to_station_code VARCHAR(10) NOT NULL REFERENCES stations(station_code) ON DELETE CASCADE,
+    distance_km DOUBLE PRECISION NOT NULL CHECK (distance_km >= 0),
+    duration_h INTEGER NOT NULL CHECK (duration_h >= 0),
+    duration_m INTEGER NOT NULL CHECK (duration_m >= 0 AND duration_m < 60),
+    type VARCHAR(50),
+    first_ac INTEGER DEFAULT 0 CHECK (first_ac >= 0),
+    second_ac INTEGER DEFAULT 0 CHECK (second_ac >= 0),
+    third_ac INTEGER DEFAULT 0 CHECK (third_ac >= 0),
+    first_class INTEGER DEFAULT 0 CHECK (first_class >= 0),
+    sleeper INTEGER DEFAULT 0 CHECK (sleeper >= 0),
+    chair_car INTEGER DEFAULT 0 CHECK (chair_car >= 0),
+    zone VARCHAR(10),
+    departure_time TIME NOT NULL,
+    arrival_time TIME NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS schedules (
+    id BIGINT PRIMARY KEY,
+    train_number VARCHAR(10) NOT NULL REFERENCES trains(train_number) ON DELETE CASCADE,
+    train_name VARCHAR(255) NOT NULL,
+    station_code VARCHAR(10) NOT NULL REFERENCES stations(station_code) ON DELETE CASCADE,
+    station_name VARCHAR(255) NOT NULL,
+    day INTEGER NOT NULL CHECK (day >= 1),
+    arrival_time TIME,
+    departure_time TIME
+);
+
+""" 
+
+
+
+conn = psycopg2.connect(
+    dbname="railway",
+    user=DB_PROPERTIES["user"],
+    password=DB_PROPERTIES["password"],
+    host="yamanote.proxy.rlwy.net",
+    port=29855
+)
+
+cur = conn.cursor()
+for ddl in ddl_commands.strip().split(";"):
+    if ddl.strip():
+        cur.execute(ddl)
+conn.commit()
+cur.close()
+conn.close()
+
+
+stations_schema = StructType([
+    StructField("type", StringType(), True),
+    StructField("features", ArrayType(
+        StructType([
+            StructField("geometry", StructType([
+                StructField("type", StringType(), True),
+                StructField("coordinates", ArrayType(DoubleType()), True)
+            ]), True),
+            StructField("t# Configype", StringType(), True),
+            StructField("properties", StructType([
+                StructField("state", StringType(), True),
+                StructField("code", StringType(), True),
+                StructField("name", StringType(), True),
+                StructField("zone", StringType(), True),
+                StructField("address", StringType(), True)
+            ]), True)
+        ])
+    ), True)
+])
+
+trains_schema = StructType([
+    StructField("type", StringType(), True),
+    StructField("features", ArrayType(
+        StructType([
+            StructField("geometry", StructType([
+                StructField("type", StringType(), True),
+                StructField("coordinates", ArrayType(ArrayType(DoubleType())), True)
+            ]), True),
+            StructField("type", StringType(), True),
+            StructField("properties", StructType([
+                StructField("third_ac", IntegerType(), True),
+                StructField("arrival", StringType(), True),
+                StructField("from_station_code", StringType(), True),
+                StructField("name", StringType(), True),
+                StructField("zone", StringType(), True),
+                StructField("chair_car", IntegerType(), True),
+                StructField("first_class", IntegerType(), True),
+                StructField("duration_m", IntegerType(), True),
+                StructField("sleeper", IntegerType(), True),
+                StructField("from_station_name", StringType(), True),
+                StructField("number", StringType(), True),
+                StructField("departure", StringType(), True),
+                StructField("return_train", StringType(), True),
+                StructField("to_station_code", StringType(), True),
+                StructField("second_ac", IntegerType(), True),
+                StructField("classes", StringType(), True),
+                StructField("to_station_name", StringType(), True),
+                StructField("duration_h", IntegerType(), True),
+                StructField("type", StringType(), True),
+                StructField("first_ac", IntegerType(), True),
+                StructField("distance", DoubleType(), True)
+            ]), True)
+        ])
+    ), True)
+])
+
+schedules_schema = StructType([
+    StructField("arrival", StringType(), True),
+    StructField("day", IntegerType(), True),
+    StructField("train_name", StringType(), True),
+    StructField("station_name", StringType(), True),
+    StructField("station_code", StringType(), True),
+    StructField("id", IntegerType(), True),
+    StructField("train_number", StringType(), True),
+    StructField("departure", StringType(), True)
+])
+
+
+
+
+stations_df_raw = spark.read.option("multiline", True).schema(stations_schema).json("/home/jupyter/data/stations.json")
+stations_df_raw.count()
+stations_df_raw.show()
+
+
+
+
+stations_df = stations_df_raw.selectExpr("inline(features)") \
+    .select(
+        col("properties.code").alias("station_code"),
+        col("properties.name").alias("name"),
+        col("properties.state").alias("state"),
+        col("properties.zone").alias("zone"),
+        col("properties.address").alias("address"),
+        col("geometry.coordinates").getItem(1).alias("latitude"),
+        col("geometry.coordinates").getItem(0).alias("longitude")
+    )
+
+stations_df.count()
+stations_df.show()
+
+
+
+
+stations_df.write.jdbc(JDBC_URL, "stations", mode="append", properties=DB_PROPERTIES)
+
+
+
+trains_df_raw = spark.read.option("multiline", True).schema(trains_schema).json("/home/jupyter/data/trains.json")
+trains_df_raw.count()
+trains_df_raw.show()
+
+
+trains_df = trains_df_raw.selectExpr("inline(features)") \
+    .select(
+        col("properties.number").alias("train_number"),
+        col("properties.name").alias("name"),
+        col("properties.from_station_code"),
+        col("properties.to_station_code"),
+        col("properties.distance").alias("distance_km"),
+        col("properties.duration_h"),
+        col("properties.duration_m"),
+        col("properties.type"),
+        col("properties.first_ac"),
+        col("properties.second_ac"),
+        col("properties.third_ac"),
+        col("properties.sleeper"),
+        col("properties.chair_car"),
+        col("properties.zone"),
+        to_timestamp(col("properties.departure"), "HH:mm:ss").alias("departure_time"),
+        to_timestamp(col("properties.arrival"), "HH:mm:ss").alias("arrival_time")
+    )
+
+print(trains_df.count())
+trains_df.printSchema()
+trains_df.show(5)
+
+
+
+
+trains_df_clean = trains_df.fillna({
+    "distance_km": 0.0,
+    "duration_h": 0,
+    "duration_m": 0,
+    "departure_time": "1970-01-01 00:00:00",
+    "arrival_time": "1970-01-01 00:00:00"
+})
+print(trains_df.count())
+trains_df.printSchema()
+trains_df.show(5)
+
+
+
+
+trains_df.write.jdbc(JDBC_URL, "trains", mode="append", properties=DB_PROPERTIES)
+
+
+
+schedules_df = spark.read.option("multiline", True).schema(schedules_schema).json("/home/jupyter/data/schedules.json")
+schedules_df.count()
+schedules_df.show()
+
+
+
+schedules_df = schedules_df \
+    .withColumn("arrival_time", to_timestamp(col("arrival"), "HH:mm:ss")) \
+    .withColumn("departure_time", to_timestamp(col("departure"), "HH:mm:ss")) \
+    .select(
+        col("id"),
+        col("train_number"),
+        col("station_code"),
+        col("station_name"),
+        col("day"),
+        col("arrival_time"),
+        col("departure_time"),
+        col("train_name")
+    )
+
+
+
+schedules_df = schedules_df.alias("s") \
+    .join(trains_df.select("train_number", "name").alias("t"),
+          on="train_number", how="left") \
+    .withColumn("train_name",
+                coalesce(col("s.train_name"), col("t.name"))) \
+    .drop(col("t.name"))
+
+
+
+
+schedules_df.show()
+
+
+
+
+import json
+import http.client
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, udf, explode, concat_ws, to_timestamp, current_timestamp, date_format, when
+from pyspark.sql.types import StringType, IntegerType
+
+def fetch_train_info(train_number):
+    conn = http.client.HTTPSConnection("indian-railway-irctc.p.rapidapi.com")
+    headers = {
+        'x-rapidapi-key': "ea82a60e4amsha48c0c76001fb28p1ac782jsn389a7907946c",
+        'x-rapidapi-host': "indian-railway-irctc.p.rapidapi.com"
+    }
+    endpoint = f"/api/trains-search/v1/train/{train_number}?isH5=true&client=web"
+    conn.request("GET", endpoint, headers=headers)
+    res = conn.getresponse()
+    data = res.read()
+    json_data = json.loads(data.decode("utf-8"))
+    
+    trains_list = []
+    if "body" in json_data and len(json_data["body"]) > 0 and "trains" in json_data["body"][0]:
+        trains_list = json_data["body"][0]["trains"]
+        
+    # Normalize list fields to strings to avoid PySparkTypeError
+    for train in trains_list:
+        if "journeyClasses" in train and isinstance(train["journeyClasses"], list):
+            train["journeyClasses"] = ",".join(train["journeyClasses"])
+        if "train_type" in train and isinstance(train["train_type"], list):
+            train["train_type"] = ",".join(train["train_type"])
+    return trains_list
+
+
+
+from datetime import datetime
+
+current_date = datetime.now().strftime("%d-%m-%Y")
+print(current_date)  # Example: 13-08-2025
